@@ -1,15 +1,42 @@
-import { MapPin, Mail, Instagram, MessageCircle, Send } from 'lucide-react';
+import { MapPin, Mail, Instagram, MessageCircle, Send, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 
 export default function Contact() {
   const [form, setForm] = useState({ name: '', email: '', message: '' });
   const [sent, setSent] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSent(true);
-    setForm({ name: '', email: '', message: '' });
-    setTimeout(() => setSent(false), 4000);
+    setLoading(true);
+    setError('');
+
+    try {
+      const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-contact-email`;
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(form),
+      });
+
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Gagal mengirim pesan.');
+      }
+
+      setSent(true);
+      setForm({ name: '', email: '', message: '' });
+      setTimeout(() => setSent(false), 4000);
+    } catch (err: any) {
+      setError(err.message || 'Terjadi kesalahan. Silakan coba lagi.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -86,8 +113,8 @@ export default function Contact() {
                 </div>
               </div>
 
-              <div className="mt-8 p-4 rounded-xl bg-amber-500/5 border border-amber-500/15">
-                <p className="text-neutral-400 text-xs leading-relaxed">
+              <div className="mt-8 p-4 rounded-xl bg-amber-500/5 border border-amber-500/15 text-center">
+                <p className="text-neutral-400 text-xs">
                   Kami membuka kesempatan untuk karyawan, magang, volunteer, dan ambassador.
                   Hubungi kami untuk informasi lebih lanjut.
                 </p>
@@ -145,12 +172,21 @@ export default function Contact() {
                   />
                 </div>
 
+                {error && (
+                  <div className="text-red-400 text-xs">{error}</div>
+                )}
+
                 <button
                   type="submit"
-                  className="w-full py-3.5 rounded-xl gold-gradient text-neutral-900 font-semibold text-sm hover:opacity-90 transition-opacity shadow-lg shadow-amber-900/30 flex items-center justify-center gap-2"
+                  disabled={loading}
+                  className="w-full py-3.5 rounded-xl gold-gradient text-neutral-900 font-semibold text-sm hover:opacity-90 transition-opacity shadow-lg shadow-amber-900/30 flex items-center justify-center gap-2 disabled:opacity-60"
                 >
-                  <Send size={15} />
-                  Kirim Pesan
+                  {loading ? (
+                    <Loader2 size={15} className="animate-spin" />
+                  ) : (
+                    <Send size={15} />
+                  )}
+                  {loading ? 'Mengirim...' : 'Kirim Pesan'}
                 </button>
               </form>
             )}

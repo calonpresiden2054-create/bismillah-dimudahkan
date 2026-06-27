@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Menu, X, TrendingUp } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 
 const navLinks = [
   { label: 'Beranda', href: '#hero' },
@@ -30,9 +30,11 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-16 lg:h-20">
           {/* Logo */}
           <a href="#hero" className="flex items-center gap-2.5 group">
-            <div className="w-9 h-9 rounded-lg gold-gradient flex items-center justify-center shadow-lg">
-              <TrendingUp size={18} className="text-neutral-900" strokeWidth={2.5} />
-            </div>
+            <img
+              src="/WhatsApp_Image_2026-06-25_at_20.20.52.jpeg"
+              alt="Ngerti Investasi"
+              className="w-9 h-9 rounded-lg object-cover shadow-lg"
+            />
             <div className="leading-none">
               <span className="block text-sm font-semibold text-amber-400 tracking-wide">Ngerti</span>
               <span className="block text-xs text-neutral-400 tracking-widest uppercase">Investasi</span>
